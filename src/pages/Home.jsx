@@ -67,10 +67,24 @@ const FEATURED_CARDS = [
 
 /* ─────────────── ScrollGrid component (the main animation) ─────────────── */
 
+
+
 function ScrollGrid() {
+    const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
   /* The outer wrapper needs 240vh so the sticky content has room to animate */
   const sectionRef   = useRef(null)
   const scalerImgRef = useRef(null)
+  const isAtBottom = useInView(scalerImgRef, {
+  margin: '0px 0px -100% 0px',  // 👈 CHANGE TIMING HERE
+})
+
   const layer1Ref    = useRef(null)
   const layer2Ref    = useRef(null)
   const layer3Ref    = useRef(null)
@@ -81,11 +95,19 @@ function ScrollGrid() {
   })
 
   /* ── Center image: width/height shrink from 100vw/100vh → natural ── */
-  const imgW = useTransform(scrollYProgress, [0, 0.8], ['100vw', '100%'])
-  const imgH = useTransform(scrollYProgress, [0, 0.8], ['100vh', '100%'])
+ // ✅ ADD THIS JUST ABOVE imgW
+const widthRange  = isMobile ? ['90vw', '100%'] : ['100vw', '100%']
+const heightRange = isMobile ? ['60vh', '100%'] : ['100vh', '100%']
+
+const imgW = useTransform(scrollYProgress, [0, 0.8], widthRange)
+const imgH = useTransform(scrollYProgress, [0, 0.8], heightRange)
 
   /* ── Layer opacity: hold 0 until 55 %, then rise to 1 ── */
- const layer1Opacity = useTransform(scrollYProgress, [0.35, 0.5, 0.7], [0, 0.6, 1])
+ const layer1Opacity = useTransform(
+  scrollYProgress,
+  isMobile ? [0.2, 0.4, 0.6] : [0.35, 0.5, 0.7],
+  [0, 0.6, 1]
+)
 const layer2Opacity = useTransform(scrollYProgress, [0.4, 0.55, 0.75], [0, 0.6, 1])
 const layer3Opacity = useTransform(scrollYProgress, [0.45, 0.6, 0.8], [0, 0.6, 1])
 
@@ -112,7 +134,7 @@ const layer3Scale = useTransform(scrollYProgress, [0.45, 0.8], [0.6, 1])
       ref={sectionRef}
       style={{
         /* 240 vh gives the scroll-driven animation enough runway */
-        minHeight: '150vh',
+        minHeight: isMobile ? '120vh' : '150vh',
         position: 'relative',
         background: '#EEECE0',
       }}
@@ -164,7 +186,7 @@ const layer3Scale = useTransform(scrollYProgress, [0.45, 0.8], [0.6, 1])
         style={{
           position: 'sticky',
           top: 0,
-          height: '100vh',
+          height: isMobile ? '100dvh' : '100vh',
           width: '100%',
           display: 'flex',
           alignItems: 'center',
@@ -176,31 +198,33 @@ const layer3Scale = useTransform(scrollYProgress, [0.45, 0.8], [0.6, 1])
         <div
           style={{
             position: 'absolute',
-            top: '40%',
+           top: isMobile ? '55%' : '30%',
+            
             left: '50%',
             translate: '-50% -50%',
             width: 'min(1600px, calc(100% - 4rem))',
             display: 'grid',
-            gridTemplateColumns: 'repeat(5, 1fr)',
-            gridTemplateRows: 'repeat(3, 1fr)',
+            gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)',
+gridTemplateRows: isMobile ? 'repeat(4, auto)' : 'repeat(3, 1fr)',
             height: '100%',
-            gap: 'clamp(6px, 6.35vw, 50px)',
+            gap: isMobile ? '12px' : 'clamp(6px, 6.35vw, 50px)',
           }}
         >
           {/* ── LAYER 1: outer edges ── */}
-          <motion.div
-            ref={layer1Ref}
-            style={{
-              display: 'grid',
-              gridColumn: '1 / -1',
-              gridRow:    '1 / -1',
-              gridTemplateColumns: 'subgrid',
-              gridTemplateRows:    'subgrid',
-              opacity: ol1,
-              scale:   sl1,
-            }}
-          >
-            {LAYER1.map((src, i) => (
+          {!isMobile && (
+  <motion.div
+    ref={layer1Ref}
+    style={{
+      display: 'grid',
+      gridColumn: '1 / -1',
+      gridRow: '1 / -1',
+      gridTemplateColumns: 'subgrid',
+      gridTemplateRows: 'subgrid',
+      opacity: ol1,
+      scale: sl1,
+    }}
+  >
+            {(isMobile ? LAYER1.slice(0, 4) : LAYER1).map((src, i) => (
               <div
                 key={i}
                 style={{
@@ -221,6 +245,7 @@ const layer3Scale = useTransform(scrollYProgress, [0.45, 0.8], [0.6, 1])
               </div>
             ))}
           </motion.div>
+          )}
 
           {/* ── LAYER 2: inner columns ── */}
           <motion.div
@@ -235,7 +260,7 @@ const layer3Scale = useTransform(scrollYProgress, [0.45, 0.8], [0.6, 1])
               scale:   sl2,
             }}
           >
-            {LAYER2.map((src, i) => (
+           {(isMobile ? LAYER2.slice(0, 4) : LAYER2).map((src, i) => (
               <div
                 key={i}
                 style={{
@@ -597,7 +622,7 @@ export default function Home() {
     top: '50%',
     left: '50%',
     width: '100vw',
-    height: '56.25vw',   // 16:9 ratio
+    height: '60.25vw',   // 16:9 ratio
     minHeight: '100vh',
     minWidth: '177.77vh',
     transform: 'translate(-50%, -50%)',
@@ -623,13 +648,13 @@ export default function Home() {
         <div
           className="relative z-10 flex flex-col justify-end h-full"
           style={{
-            padding: '0 6vw 2vh',
+            padding: '9vh 6vw 2vh',
             transform: `perspective(1200px) rotateX(${mousePos.y * 0.02}deg) rotateY(${mousePos.x * 0.02}deg)`,
             transition: 'transform 0.1s ease',
           }}
         >
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1, ease: [0.16,1,0.3,1] }}>
-            <p className="section-label mb-4" style={{ color: '#E8C96A', }}>Welcome to MoodyCraft Interior</p>
+            <p className="section-label mb-4" style={{ color: '#E8C96A' }}>Welcome to MoodyCraft Interior</p>
           </motion.div>
 
           <motion.h1
@@ -817,80 +842,112 @@ export default function Home() {
         <TornEdgeTop fillColor="#EEECE0" />
       </div>
 
-      {/* ══════════════════ SERVICES PREVIEW ══════════════════ */}
-      <section style={{ background: '#CCB9B5', padding: '20px 4vw' }}>
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            className="text-center"
-            style={{ marginBottom: '60px' }}
-            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.16,1,0.3,1] }}
-          >
-            <p className="section-label mb-4">What We Do</p>
-            <h2 className="section-title" style={{ color: '#2C2416' }}>
-              Our <em style={{ fontStyle: 'italic', color: '#2C2416' }}>Services</em>
-            </h2>
-          </motion.div>
-<div className="grid grid-cols-4 gap-16">
-              {[
-              { icon: '🏠', title: 'Residential',     desc: 'Luxurious homes crafted to reflect your personal narrative' },
-              { icon: '🏢', title: 'Commercial',      desc: 'Smart, impactful spaces that elevate your brand identity'   },
-              { icon: '🔑', title: 'Turnkey',         desc: 'Complete end-to-end interior solutions, worry-free'         },
-              { icon: '🎨', title: '3D Visualization', desc: 'Photorealistic renders before a single nail is hammered'   },
-            ].map((service, i) => (
-             <motion.div
-  key={service.title}
-  initial={{ opacity: 0, y: 50 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  viewport={{ once: true }}
-  transition={{ duration: 0.6, delay: i * 0.12 }}
+{/* ══════════════════ SERVICES PREVIEW ══════════════════ */}
+<section style={{ background: '#CCB9B5', padding: '40px 4vw' }}>
+  <div className="max-w-7xl mx-auto">
 
-  whileHover={{
-    y: -10,
-    borderColor: '#C9A84C',
-    boxShadow: '0 20px 50px rgba(229, 186, 66, 0.29)',
-  }}
+    {/* Heading */}
+    <motion.div
+      className="text-center"
+      style={{ marginBottom: '60px' }}
+      initial={{ opacity: 0, y: 50, scale: 0.96 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <p className="section-label mb-4">What We Do</p>
+      <h2 className="section-title" style={{ color: '#2C2416' }}>
+        Our <em style={{ fontStyle: 'italic', color: '#2C2416' }}>Services</em>
+      </h2>
+    </motion.div>
 
-  style={{
-    background: 'rgba(60, 20, 5, 0.6)',
-    border: '1px solid rgba(201,168,76,0.2)',
-    padding: '30px',
-    position: 'relative',
-    overflow: 'hidden',
+    {/* Cards */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      {[
+        { icon: '🏠', title: 'Residential',      desc: 'Luxurious homes crafted to reflect your personal narrative' },
+        { icon: '🏢', title: 'Commercial',       desc: 'Smart, impactful spaces that elevate your brand identity'   },
+        { icon: '🔑', title: 'Turnkey',          desc: 'Complete end-to-end interior solutions, worry-free'         },
+        { icon: '🎨', title: '3D Visualization', desc: 'Photorealistic renders before a single nail is hammered'   },
+      ].map((service, i) => (
+        <motion.div
+          key={service.title}
+          whileHover={{
+            y: -10,
+            scale: 1.03,
+            borderColor: '#C9A84C',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.18), 0 0 30px rgba(201,168,76,0.25)',
+            transition: { duration: 0.35, ease: 'easeOut' },
+          }}
+          style={{
+            background: 'rgba(60, 20, 5, 0.6)',
+            border: '1px solid rgba(201,168,76,0.2)',
+            borderRadius: '4px',
+            padding: 'clamp(16px, 3vw, 28px)',
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            minHeight: 'clamp(160px, 22vw, 220px)',
+            cursor: 'pointer',
+          }}
+        >
+          {/* Top gold line */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0,
+            width: '100%', height: '2px',
+            background: 'linear-gradient(90deg, transparent, #C9A84C, transparent)'
+          }} />
 
-    // ⭐ KEY PART
-    aspectRatio: '1 / 1',
-    width: '100%',
-alignItems: 'flex-start',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  }}
->
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, #C9A84C, transparent)' }} />
-                <div style={{ fontSize: '2.5rem', marginBottom: '20px' }}>{service.icon}</div>
-                <h3 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '1.6rem', fontWeight: 400, color: '#d4a822', marginBottom: '12px' }}>{service.title}</h3>
-                <p style={{ fontFamily: '"Josefin Sans", sans-serif', fontSize: '0.78rem', color: '#f1eeeb', lineHeight: 1.8, fontWeight: 300 }}>{service.desc}</p>
-              </motion.div>
-            ))}
+          <div style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', marginBottom: '14px' }}>
+            {service.icon}
           </div>
+          <h3 style={{
+            fontFamily: '"Cormorant Garamond", serif',
+            fontSize: 'clamp(1rem, 2vw, 1.5rem)',
+            fontWeight: 400,
+            color: '#d4a822',
+            marginBottom: '10px',
+          }}>
+            {service.title}
+          </h3>
+          <p style={{
+            fontFamily: '"Josefin Sans", sans-serif',
+            fontSize: 'clamp(0.65rem, 1.2vw, 0.78rem)',
+            color: '#f1eeeb',
+            lineHeight: 1.8,
+            fontWeight: 300,
+          }}>
+            {service.desc}
+          </p>
+        </motion.div>
+      ))}
+    </div>
 
-          <motion.div
-            className="text-center" style={{ marginTop: '56px' }}
-            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.7 }}
-          >
-            <Link to="/services"><button className="btn-gold"><span>All Services</span></button></Link>
-          </motion.div>
-        </div>
-      </section>
+    {/* CTA */}
+    <motion.div
+      className="text-center"
+      style={{ marginTop: '48px' }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1.0, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Link to="/services">
+        <button className="btn-gold"><span>All Services</span></button>
+      </Link>
+    </motion.div>
+
+  </div>
+</section>
 
       {/* Torn divider */}
       <div style={{ background: '#2C2416' }}>
         <TornEdgeTop fillColor="#CCB9B5" />
       </div>
 
-      
+    
       {/* ══════════════════ CTA ══════════════════ */}
       <section style={{ background: 'linear-gradient(135deg, #2C2416 0%, #1a1410 50%, #2C2416 100%)', padding: '70px 6vw', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div className="orb" style={{ width: 600, height: 600, background: '#C9A84C', top: '-30%', left: '50%', transform: 'translateX(-50%)', opacity: 0.08 }} />

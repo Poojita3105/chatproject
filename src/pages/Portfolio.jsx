@@ -9,7 +9,7 @@ const ALL_PROJECTS = [
   { id: '2', title: 'Velvet Commerce', category: 'office', client: 'NexGen Corp', location: 'Bangalore', img: 'https://i.pinimg.com/736x/b5/e4/fc/b5e4fcfae3bb2c0a198c8900b4432037.jpg?w=800&q=80', tag: 'NEXGEN TOWER' },
   { id: '3', title: 'The Bronze Loft', category: 'kitchen', client: 'Rohan & Sneha', location: 'Pune', img: 'https://i.pinimg.com/1200x/b0/0d/8b/b00d8bef45550c2ac16a11ca7915da92.jpg?w=800&q=80', tag: 'BRONZE RESIDENCY' },
   { id: '4', title: 'Silk Penthouse', category: 'bedroom', client: 'Amit Kapoor', location: 'Delhi', img: 'https://i.pinimg.com/736x/6c/3b/59/6c3b59b330088059538df39e9187d339.jpg?w=800&q=80', tag: 'SILK HEIGHTS' },
-  { id: '5', title: 'Onyx Living', category: 'living room', client: 'Sharma Family', location: 'Hyderabad', img: 'https://i.pinimg.com/1200x/55/43/8d/55438d23309d8e910e533c977c941f49.jpg?w=800&q=80', tag: 'ONYX VILLAS' },
+  { id: '5', title: 'Onyx Living', category: 'living room', client: 'Sharma Family', location: 'Hyderabad', img: 'https://i.pinimg.com/736x/0d/46/2b/0d462b1be4536aeab9fa55bab426726a.jpg?w=800&q=80', tag: 'ONYX VILLAS' },
   { id: '6', title: 'Pearl Bedroom', category: 'bedroom', client: 'Vikram & Ananya', location: 'Chennai', img: 'https://i.pinimg.com/736x/69/85/1f/69851f1eefe8a7ace29395295b1ec82f.jpg?w=800&q=80', tag: 'PEARL TOWERS' },
   { id: '7', title: 'Ember Kitchen', category: 'kitchen', client: 'Gupta Residence', location: 'Jaipur', img: 'https://i.pinimg.com/736x/fa/70/e1/fa70e15777f42c61dad8d7453dcd8299.jpg?w=800&q=80', tag: 'EMBER ESTATE' },
   { id: '8', title: 'Marble Office', category: 'office', client: 'FinPulse Ltd', location: 'Gurgaon', img: 'https://i.pinimg.com/1200x/9b/1c/ab/9b1cabdb313037ab55905f305c7f7d3e.jpg?w=800&q=80', tag: 'FINPULSE HQ' },
@@ -171,7 +171,7 @@ background: activeFilter === f
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
               gap: '60px 40px',
               opacity: visible ? 1 : 0,
               transform: visible ? 'translateY(0)' : 'translateY(20px)',

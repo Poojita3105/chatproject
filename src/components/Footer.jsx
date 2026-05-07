@@ -69,13 +69,13 @@ function FooterLink({ to, children }) {
         display: 'block',
         fontFamily: '"Josefin Sans", sans-serif',
         fontSize: '0.8rem',
-        fontWeight: 300,
+        fontWeight: 500,
         letterSpacing: '0.04em',
         color: hov ? '#E7DECF' : '#A09890',
         textDecoration: 'none',
         paddingLeft: hov ? '8px' : '0px',
         transition: 'all 0.28s ease',
-        marginBottom: '10px',
+        marginBottom: '18px',
       }}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
@@ -206,7 +206,7 @@ export default function Footer() {
         <div>
           <h4 style={{
             fontFamily: '"Josefin Sans", sans-serif',
-            fontSize: '0.6rem', letterSpacing: '0.35em',
+            fontSize: '0.7rem', letterSpacing: '0.35em',
             textTransform: 'uppercase', color: '#C9A84C',
             fontWeight: 500, marginBottom: '22px',
           }}>
@@ -221,7 +221,7 @@ export default function Footer() {
         <div>
           <h4 style={{
             fontFamily: '"Josefin Sans", sans-serif',
-            fontSize: '0.6rem', letterSpacing: '0.35em',
+            fontSize: '0.7rem', letterSpacing: '0.35em',
             textTransform: 'uppercase', color: '#C9A84C',
             fontWeight: 500, marginBottom: '22px',
           }}>
